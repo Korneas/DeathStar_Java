@@ -37,6 +37,36 @@ public class Logica implements Observer {
 	private PVector pos;
 	private float sigX;
 	private boolean der, izq;
+	
+	public PImage[] start(char type, int size){
+		
+		PImage[] aux = new PImage[size];
+		
+		if (size == 10 && type == 'f'){
+			aux[0] = app.loadImage("Logo.png");
+			aux[1] = app.loadImage("ApodoWriter.png");
+			aux[2] = app.loadImage("Continue.png");
+			aux[3] = app.loadImage("Nebulosa.jpg");
+			aux[4] = app.loadImage("BasicStars.png");
+			aux[5] = app.loadImage("BiggerStars.png");
+			aux[6] = app.loadImage("Leia.png");
+			aux[7] = app.loadImage("Instrucciones.png");
+			
+		}
+		else if (size == 4 && type == 'n'){
+			aux[0] = app.loadImage("xWing.png");
+			aux[1] = app.loadImage("yWing.png");
+			aux[2] = app.loadImage("aWing.png");
+		}
+		else if (size == 4 && type == 'e'){
+			
+			aux[0] = app.loadImage("TIE.png");
+			aux[1] = app.loadImage("Bomber.png");
+			aux[2] = app.loadImage("R2D2.png");
+			aux[3] = app.loadImage("Strom.png");
+		}
+		return aux;
+	}
 
 	public Logica(PApplet app) {
 		super();
@@ -65,16 +95,7 @@ public class Logica implements Observer {
 			}
 		}
 
-		fondo = new PImage[10];
-
-		fondo[0] = app.loadImage("Logo.png");
-		fondo[1] = app.loadImage("ApodoWriter.png");
-		fondo[2] = app.loadImage("Continue.png");
-		fondo[3] = app.loadImage("Nebulosa.jpg");
-		fondo[4] = app.loadImage("BasicStars.png");
-		fondo[5] = app.loadImage("BiggerStars.png");
-		fondo[6] = app.loadImage("Leia.png");
-		fondo[7] = app.loadImage("Instrucciones.png");
+		fondo = start('f', 10);
 
 		posFondo = new float[6];
 
@@ -85,18 +106,9 @@ public class Logica implements Observer {
 		posFondo[4] = -3050;
 		posFondo[5] = -3050;
 
-		naves = new PImage[4];
+		naves = start('n' , 4);		
 
-		naves[0] = app.loadImage("xWing.png");
-		naves[1] = app.loadImage("yWing.png");
-		naves[2] = app.loadImage("aWing.png");
-
-		elementos = new PImage[4];
-
-		elementos[0] = app.loadImage("TIE.png");
-		elementos[1] = app.loadImage("Bomber.png");
-		elementos[2] = app.loadImage("R2D2.png");
-		elementos[3] = app.loadImage("Strom.png");
+		elementos = start('e', 4);	
 
 		apodo = "";
 
