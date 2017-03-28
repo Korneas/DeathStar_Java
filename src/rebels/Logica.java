@@ -7,6 +7,7 @@ import java.util.Observer;
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
+import processing.core.PVector;
 import serial.Usuario;
 
 public class Logica implements Observer {
@@ -27,10 +28,15 @@ public class Logica implements Observer {
 
 	private int pantalla;
 	private int score;
-	private boolean start, apodoEscrito;
+	private boolean start, apodoEscrito, race;
 	private PFont fuenteBold, fuenteLight;
 	private String apodo;
 	private int animacionMensaje;
+	private int opaMen = -50;
+
+	private PVector pos;
+	private float sigX;
+	private boolean der, izq;
 
 	public Logica(PApplet app) {
 		super();
@@ -83,11 +89,21 @@ public class Logica implements Observer {
 
 		naves[0] = app.loadImage("xWing.png");
 		naves[1] = app.loadImage("yWing.png");
-		naves[2] = app.loadImage("");
+		naves[2] = app.loadImage("aWing.png");
+
+		elementos = new PImage[4];
+
+		elementos[0] = app.loadImage("TIE.png");
+		elementos[1] = app.loadImage("Bomber.png");
+		elementos[2] = app.loadImage("R2D2.png");
+		elementos[3] = app.loadImage("Strom.png");
 
 		apodo = "";
 
 		start = true;
+
+		sigX = app.width / 2;
+		pos = new PVector(sigX, 600);
 	}
 
 	public void ejecutar() {
@@ -194,7 +210,11 @@ public class Logica implements Observer {
 
 				app.image(fondo[6], 450, 480);
 
-				app.tint(255, 255);
+				if (opaMen < 255) {
+					opaMen += 1;
+				}
+
+				app.tint(255, opaMen);
 				app.image(fondo[2], app.width / 2, 645);
 				app.tint(255, 255);
 				app.textAlign(PApplet.CENTER);
@@ -206,9 +226,41 @@ public class Logica implements Observer {
 		app.imageMode(PApplet.CENTER);
 		app.image(fondo[7], app.width / 2, app.height / 2);
 		nav.pintar();
+		String[] puntos = new String[4];
+		puntos[0] = "-50 pts";
+		puntos[1] = "-200 pts";
+		puntos[2] = "+250 pts";
+		puntos[3] = "+25 pts";
+
+		app.textAlign(PApplet.CENTER);
+		app.textFont(fuenteLight);
+		app.textSize(20);
+
+		for (int i = 0; i < elementos.length; i++) {
+			app.image(elementos[i], 150 + (100 * i), 520);
+			app.text(puntos[i], 150 + (100 * i), 580);
+		}
+
+		if (opaMen < 255) {
+			opaMen += 1;
+		}
+
+		app.tint(255, opaMen);
+		app.image(fondo[2], app.width / 2, 645);
+		app.tint(255, 255);
+
 	}
 
 	public void game() {
+
+		nav.pintar();
+		nav.update(pos);
+
+		if (der) {
+			pos.x += 10;
+		} else if (izq) {
+			pos.x -= 10;
+		}
 
 	}
 
@@ -240,7 +292,7 @@ public class Logica implements Observer {
 						if (apodo.contains("Han Solo")) {
 
 						} else {
-							nav = new Nave(app, naves[0]);
+							nav = new Nave(app, naves[(int) app.random(0, 3)]);
 						}
 
 						try {
@@ -254,17 +306,20 @@ public class Logica implements Observer {
 				if (apodoEscrito) {
 
 					if (app.key == 'f' && animacionMensaje >= 170) {
-						snd.pasoPantalla();
+						snd.triggerSample(3);
 						pantalla = 1;
+						opaMen = -50;
 					} else if (app.key == 'f' && animacionMensaje < 170) {
 						animacionMensaje = 170;
+						opaMen = 255;
 					}
 
 				}
 				break;
 			case 1:
 				if (app.key == 'f') {
-					snd.pasoPantalla();
+					snd.triggerSample(3);
+					nav.setPos(app.width / 2, 600);
 					pantalla = 2;
 				}
 				break;
@@ -273,16 +328,28 @@ public class Logica implements Observer {
 
 				}
 
-				if (app.keyCode == PApplet.RIGHT) {
-
+				if (app.keyCode == PApplet.RIGHT && pos.x < app.width) {
+					der = true;
 				}
 
-				if (app.keyCode == PApplet.LEFT) {
-
+				if (app.keyCode == PApplet.LEFT && pos.x > 0) {
+					izq = true;
 				}
 				break;
 			}
 
+		}
+	}
+	
+	public void release(){
+		if(pantalla==2){
+			if (app.keyCode == PApplet.RIGHT) {
+				der = false;
+			}
+
+			if (app.keyCode == PApplet.LEFT) {
+				izq = false;
+			}
 		}
 	}
 

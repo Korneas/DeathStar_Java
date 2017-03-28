@@ -32,6 +32,7 @@ public class Sound {
 		cancion = musica[0];
 
 		cancion.setBalance(0);
+		cancion.setGain(-40);
 	}
 
 	public void reproducir() {
@@ -49,25 +50,9 @@ public class Sound {
 		cancion.pause();
 		cancion.rewind();
 	}
-
-	public void disparoX() {
-		samples[0].trigger();
-	}
-
-	public void disparoY() {
-		samples[1].trigger();
-	}
-
-	public void r2d2() {
-		samples[2].trigger();
-	}
-
-	public void tieBomb() {
-
-	}
 	
-	public void pasoPantalla(){
-		samples[3].trigger();
+	public void triggerSample(int num){
+		samples[num].trigger();
 	}
 
 	public void setCancion(int num) {

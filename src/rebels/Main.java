@@ -32,4 +32,9 @@ public class Main extends PApplet{
 			log.tecla();
 		}
 		
+		@Override
+		public void keyReleased() {
+			log.release();
+		}
+		
 	}
