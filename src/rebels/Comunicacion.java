@@ -81,6 +81,7 @@ public class Comunicacion extends Observable implements Runnable {
 		DatagramPacket dPacket = new DatagramPacket(data, data.length, host, PORT);
 
 		mSocket.send(dPacket);
+//		System.out.println(id + " Envio objeto a: " + ipAdrs);
 	}
 
 	/**
@@ -94,6 +95,7 @@ public class Comunicacion extends Observable implements Runnable {
 		byte[] data = new byte[1024];
 		DatagramPacket dPacket = new DatagramPacket(data, data.length);
 		mSocket.receive(dPacket);
+//		System.out.println(id + " Se recibio mensaje");
 		return dPacket;
 	}
 
@@ -159,7 +161,7 @@ public class Comunicacion extends Observable implements Runnable {
 									enviar(new MensajeID("soy:" + id), GROUP_ADDRESS);
 								}
 							}
-							
+
 							if (!dPacket.getAddress().toString().contains(GROUP_ADDRESS)) {
 								ANDROID_ADDRESS = dPacket.getAddress().toString();
 							}

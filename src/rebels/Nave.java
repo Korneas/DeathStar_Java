@@ -8,14 +8,15 @@ public class Nave {
 
 	private PApplet app;
 	private PVector pos, vel, a;
+	private int num;
 	private float x, y, topVel;
-	private boolean near;
 	private PImage nav;
 
-	public Nave(PApplet app, PImage nav) {
+	public Nave(PApplet app, PImage nav, int num) {
 		super();
 		this.app = app;
 		this.nav = nav;
+		this.num = num;
 
 		x = app.width / 2;
 		y = 300;
@@ -54,4 +55,21 @@ public class Nave {
 		this.pos.x = x;
 		this.pos.y = y;
 	}
+	
+	public float getPosX(){
+		return pos.x;
+	}
+	
+	public float getPosY(){
+		return pos.y;
+	}
+
+	public int getNum() {
+		return num;
+	}
+
+	public void setNum(int num) {
+		this.num = num;
+	}
+	
 }

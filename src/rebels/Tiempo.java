@@ -5,8 +5,8 @@ import processing.core.PApplet;
 public class Tiempo {
 
 	private PApplet app;
-	int comenzar = 0, parar = 0;
-	boolean reproducir = false;
+	private int comenzar = 0, parar = 0;
+	private boolean reproducir = false;
 
 	/*
 	 * Objeto para medir el tiempo con millis, utilizando PApplet
@@ -18,7 +18,7 @@ public class Tiempo {
 	/*
 	 * Empezar el conteo - Vuelve a empezar el conteo
 	 */
-	void empezar() {
+	public void empezar() {
 		comenzar = app.millis();
 		reproducir = true;
 	}
@@ -26,7 +26,7 @@ public class Tiempo {
 	/*
 	 * Detiene el reloj
 	 */
-	void detener() {
+	public void detener() {
 		parar = app.millis();
 		reproducir = false;
 	}
@@ -34,7 +34,7 @@ public class Tiempo {
 	/*
 	 * Muestra el tiempo que esta pasando en el momento
 	 */
-	int timepoReproducido() {
+	public int timepoReproducido() {
 		int tiempo;
 		if (reproducir) {
 			tiempo = (app.millis() - comenzar);
@@ -47,14 +47,14 @@ public class Tiempo {
 	/*
 	 * Devuelve los segundos reproducidos
 	 */
-	int second() {
+	public int second() {
 		return (timepoReproducido() / 1000) % 60;
 	}
 
 	/*
 	 * Devuelve los minutos reproducidos
 	 */
-	int minute() {
+	public int minute() {
 		return (timepoReproducido() / (1000 * 60)) % 60;
 	}
 }

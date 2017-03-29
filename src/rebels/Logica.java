@@ -1,6 +1,7 @@
 package rebels;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -8,6 +9,7 @@ import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
 import processing.core.PVector;
+import serial.Obstaculo;
 import serial.Usuario;
 
 public class Logica implements Observer {
@@ -37,6 +39,10 @@ public class Logica implements Observer {
 	private PVector pos;
 	private float sigX;
 	private boolean der, izq;
+
+	private ArrayList<Elemento> elem;
+	private ArrayList<Bullet> gun;
+	private int[][] colors;
 
 	public Logica(PApplet app) {
 		super();
@@ -104,6 +110,22 @@ public class Logica implements Observer {
 
 		sigX = app.width / 2;
 		pos = new PVector(sigX, 600);
+
+		elem = new ArrayList<Elemento>();
+		gun = new ArrayList<Bullet>();
+
+		colors = new int[5][3];
+
+		colors[0][0] = 255;
+		colors[0][1] = 0;
+		colors[0][2] = 0;
+		colors[1][0] = 255;
+		colors[1][1] = 0;
+		colors[1][2] = 0;
+		colors[2][0] = 0;
+		colors[2][1] = 255;
+		colors[2][2] = 0;
+
 	}
 
 	public void ejecutar() {
@@ -253,13 +275,33 @@ public class Logica implements Observer {
 
 	public void game() {
 
+		time.empezar();
+
 		nav.pintar();
 		nav.update(pos);
 
+		for (int i = 0; i < gun.size(); i++) {
+			gun.get(i).pintar();
+			gun.get(i).move();
+
+			if (gun.get(i).getPosY() <= -50) {
+				gun.remove(i);
+			}
+		}
+
+		for (int i = 0; i < elem.size(); i++) {
+			elem.get(i).pintar();
+			elem.get(i).mover();
+
+			if (elem.get(i).getPosY() > app.height + 100) {
+				elem.remove(i);
+			}
+		}
+
 		if (der) {
-			pos.x += 10;
+			pos.x += 6;
 		} else if (izq) {
-			pos.x -= 10;
+			pos.x -= 6;
 		}
 
 	}
@@ -292,7 +334,8 @@ public class Logica implements Observer {
 						if (apodo.contains("Han Solo")) {
 
 						} else {
-							nav = new Nave(app, naves[(int) app.random(0, 3)]);
+							int r = (int) app.random(0, 3);
+							nav = new Nave(app, naves[r], r);
 						}
 
 						try {
@@ -306,7 +349,7 @@ public class Logica implements Observer {
 				if (apodoEscrito) {
 
 					if (app.key == 'f' && animacionMensaje >= 170) {
-						snd.triggerSample(3);
+						snd.triggerSample(5);
 						pantalla = 1;
 						opaMen = -50;
 					} else if (app.key == 'f' && animacionMensaje < 170) {
@@ -318,14 +361,36 @@ public class Logica implements Observer {
 				break;
 			case 1:
 				if (app.key == 'f') {
-					snd.triggerSample(3);
+					snd.triggerSample(5);
 					nav.setPos(app.width / 2, 600);
 					pantalla = 2;
 				}
 				break;
 			case 2:
 				if (app.key == 'f') {
+					switch (nav.getNum()) {
+					case 0:
+						gun.add(new Bullet(app, nav.getPosX() - 5, nav.getPosY(), colors[nav.getNum()]));
+						gun.add(new Bullet(app, nav.getPosX() + 5, nav.getPosY(), colors[nav.getNum()]));
+						break;
+					case 1:
+						gun.add(new Bullet(app, nav.getPosX() - 5, nav.getPosY(), colors[nav.getNum()]));
+						gun.add(new Bullet(app, nav.getPosX() + 5, nav.getPosY(), colors[nav.getNum()]));
+						break;
+					case 2:
+						gun.add(new Bullet(app, nav.getPosX() - 20, nav.getPosY(), colors[nav.getNum()]));
+						gun.add(new Bullet(app, nav.getPosX() + 20, nav.getPosY(), colors[nav.getNum()]));
+						break;
+					}
+					snd.triggerSample(nav.getNum());
+				}
 
+				if (app.key == ' ') {
+					try {
+						c.enviar(new Obstaculo(2), GROUP_ADDRESS);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 
 				if (app.keyCode == PApplet.RIGHT && pos.x < app.width) {
@@ -335,14 +400,15 @@ public class Logica implements Observer {
 				if (app.keyCode == PApplet.LEFT && pos.x > 0) {
 					izq = true;
 				}
+
 				break;
 			}
 
 		}
 	}
-	
-	public void release(){
-		if(pantalla==2){
+
+	public void release() {
+		if (pantalla == 2) {
 			if (app.keyCode == PApplet.RIGHT) {
 				der = false;
 			}
@@ -361,6 +427,21 @@ public class Logica implements Observer {
 			if (mensaje.getEmisor() == 3) {
 				if (mensaje.getMsg().contains("comenzar")) {
 					start = true;
+				}
+			}
+		}
+
+		if (arg instanceof Obstaculo) {
+			Obstaculo ob = (Obstaculo) arg;
+			if (ob.getReceptor() == id) {
+				int num = (int) app.random(2);
+				switch (num) {
+				case 0:
+					elem.add(new Tie(app, elementos[0]));
+					break;
+				case 1:
+					elem.add(new Bomber(app, elementos[1]));
+					break;
 				}
 			}
 		}
