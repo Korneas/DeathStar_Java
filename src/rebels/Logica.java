@@ -9,7 +9,7 @@ import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
 import processing.core.PVector;
-import serial.Obstaculo;
+import serial.Item;
 import serial.Usuario;
 
 public class Logica implements Observer {
@@ -24,6 +24,7 @@ public class Logica implements Observer {
 	private Sound snd;
 	private Nave nav;
 	private PImage[] elementos;
+	private PImage[] asteroides;
 	private PImage[] naves;
 	private PImage[] fondo;
 	private float[] posFondo;
@@ -37,10 +38,12 @@ public class Logica implements Observer {
 	private int opaMen = -50;
 
 	private PVector pos;
-	private float sigX;
+	private float sigX, vel;
+	private float distance, maxDistance;
 	private boolean der, izq;
 
 	private ArrayList<Elemento> elem;
+	private ArrayList<Asteroide> ast;
 	private ArrayList<Bullet> gun;
 	private int[][] colors;
 
@@ -104,14 +107,23 @@ public class Logica implements Observer {
 		elementos[2] = app.loadImage("R2D2.png");
 		elementos[3] = app.loadImage("Strom.png");
 
+		asteroides = new PImage[4];
+
+		asteroides[0] = app.loadImage("Asteroide1.png");
+		asteroides[1] = app.loadImage("Asteroide2.png");
+		asteroides[2] = app.loadImage("Asteroide3.png");
+		asteroides[3] = app.loadImage("Asteroide4.png");
+
 		apodo = "";
 
 		start = true;
 
 		sigX = app.width / 2;
+		vel = 5;
 		pos = new PVector(sigX, 600);
 
 		elem = new ArrayList<Elemento>();
+		ast = new ArrayList<Asteroide>();
 		gun = new ArrayList<Bullet>();
 
 		colors = new int[5][3];
@@ -120,7 +132,7 @@ public class Logica implements Observer {
 		colors[0][1] = 0;
 		colors[0][2] = 0;
 		colors[1][0] = 255;
-		colors[1][1] = 0;
+		colors[1][1] = 255;
 		colors[1][2] = 0;
 		colors[2][0] = 0;
 		colors[2][1] = 255;
@@ -275,11 +287,6 @@ public class Logica implements Observer {
 
 	public void game() {
 
-		time.empezar();
-
-		nav.pintar();
-		nav.update(pos);
-
 		for (int i = 0; i < gun.size(); i++) {
 			gun.get(i).pintar();
 			gun.get(i).move();
@@ -296,13 +303,82 @@ public class Logica implements Observer {
 			if (elem.get(i).getPosY() > app.height + 100) {
 				elem.remove(i);
 			}
+
+			if (!(elem.get(i) instanceof R2D2) && !(elem.get(i) instanceof Strom)) {
+				if (elem.get(i).getHeal() <= 0) {
+					if (elem.get(i) instanceof Tie) {
+						score += 50;
+					} else if (elem.get(i) instanceof Bomber) {
+						score += 150;
+					}
+					elem.remove(i);
+				}
+			}
+
+			for (int j = 0; j < gun.size(); j++) {
+				if (elem.size() > 0) {
+					if (elem.get(i).colision(gun.get(j).getPos())) {
+						elem.get(i).restarHeal(gun.get(j).getDamage());
+						gun.remove(j);
+					}
+				}
+			}
 		}
 
-		if (der) {
-			pos.x += 6;
-		} else if (izq) {
-			pos.x -= 6;
+		for (int i = 0; i < ast.size(); i++) {
+			ast.get(i).pintar();
+			ast.get(i).mover();
+
+			if (ast.get(i).getPosY() >= 400 && ast.get(i).getPosY() <= 402) {
+				ast.add(new Asteroide(app, asteroides[(int) app.random(4)]));
+			}
+
+			if (ast.get(i).getPosY() > app.height + 100) {
+				ast.remove(i);
+			}
+
+			if (ast.get(i).getHeal() <= 0) {
+				ast.remove(i);
+				if (ast.size() <= 1) {
+					ast.add(new Asteroide(app, asteroides[(int) app.random(4)]));
+				}
+			}
+
+			for (int j = 0; j < gun.size(); j++) {
+				if (ast.size() > 0) {
+					if (ast.get(i).colision(gun.get(j).getPos())) {
+						ast.get(i).restarHeal(gun.get(j).getDamage());
+						score += 5;
+						gun.remove(j);
+					}
+				}
+			}
+
 		}
+
+		nav.pintar();
+		nav.update(pos);
+
+		if (der)
+
+		{
+			pos.x += vel;
+		} else if (izq) {
+			pos.x -= vel;
+		}
+
+		app.textAlign(PApplet.LEFT);
+		app.text("Puntuacion: " + PApplet.nf(score, 4), 20, 30);
+		app.strokeWeight(1);
+		app.stroke(230, 50, 120);
+		app.noFill();
+		app.line(20, 35, 200, 35);
+
+		app.textAlign(PApplet.RIGHT);
+		app.text(time.minute() + ":" + PApplet.nf(time.second(), 2), app.width - 20, 30);
+		app.line(app.width - 100, 35, app.width - 20, 35);
+		app.noStroke();
+		app.textAlign(PApplet.CENTER);
 
 	}
 
@@ -363,6 +439,8 @@ public class Logica implements Observer {
 				if (app.key == 'f') {
 					snd.triggerSample(5);
 					nav.setPos(app.width / 2, 600);
+					ast.add(new Asteroide(app, asteroides[(int) app.random(4)]));
+					time.empezar();
 					pantalla = 2;
 				}
 				break;
@@ -370,27 +448,21 @@ public class Logica implements Observer {
 				if (app.key == 'f') {
 					switch (nav.getNum()) {
 					case 0:
-						gun.add(new Bullet(app, nav.getPosX() - 5, nav.getPosY(), colors[nav.getNum()]));
-						gun.add(new Bullet(app, nav.getPosX() + 5, nav.getPosY(), colors[nav.getNum()]));
+						gun.add(new Bullet(app, nav.getPosX() - 28, nav.getPosY() - 3, colors[nav.getNum()], 5));
+						gun.add(new Bullet(app, nav.getPosX() + 28, nav.getPosY() - 3, colors[nav.getNum()], 5));
+						gun.add(new Bullet(app, nav.getPosX() - 33, nav.getPosY() - 9, colors[nav.getNum()], 5));
+						gun.add(new Bullet(app, nav.getPosX() + 33, nav.getPosY() - 9, colors[nav.getNum()], 5));
 						break;
 					case 1:
-						gun.add(new Bullet(app, nav.getPosX() - 5, nav.getPosY(), colors[nav.getNum()]));
-						gun.add(new Bullet(app, nav.getPosX() + 5, nav.getPosY(), colors[nav.getNum()]));
+						gun.add(new Bullet(app, nav.getPosX() - 3, nav.getPosY() - 54, colors[nav.getNum()], 10));
+						gun.add(new Bullet(app, nav.getPosX() + 3, nav.getPosY() - 54, colors[nav.getNum()], 10));
 						break;
 					case 2:
-						gun.add(new Bullet(app, nav.getPosX() - 20, nav.getPosY(), colors[nav.getNum()]));
-						gun.add(new Bullet(app, nav.getPosX() + 20, nav.getPosY(), colors[nav.getNum()]));
+						gun.add(new Bullet(app, nav.getPosX() - 34, nav.getPosY() - 18, colors[nav.getNum()], 10));
+						gun.add(new Bullet(app, nav.getPosX() + 34, nav.getPosY() - 18, colors[nav.getNum()], 10));
 						break;
 					}
 					snd.triggerSample(nav.getNum());
-				}
-
-				if (app.key == ' ') {
-					try {
-						c.enviar(new Obstaculo(2), GROUP_ADDRESS);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
 				}
 
 				if (app.keyCode == PApplet.RIGHT && pos.x < app.width) {
@@ -423,7 +495,6 @@ public class Logica implements Observer {
 	public void update(Observable o, Object arg) {
 		if (arg instanceof Message) {
 			Message mensaje = (Message) arg;
-
 			if (mensaje.getEmisor() == 3) {
 				if (mensaje.getMsg().contains("comenzar")) {
 					start = true;
@@ -431,18 +502,34 @@ public class Logica implements Observer {
 			}
 		}
 
-		if (arg instanceof Obstaculo) {
-			Obstaculo ob = (Obstaculo) arg;
-			if (ob.getReceptor() == id) {
-				int num = (int) app.random(2);
-				switch (num) {
+		if (arg instanceof Item) {
+			Item item = (Item) arg;
+			if (item.getReceptor() == id) {
+				switch (item.getTipo()) {
 				case 0:
-					elem.add(new Tie(app, elementos[0]));
+					int num = (int) app.random(2);
+					switch (num) {
+					case 0:
+						elem.add(new Tie(app, elementos[0]));
+						break;
+					case 1:
+						elem.add(new Bomber(app, elementos[1]));
+						break;
+					}
 					break;
 				case 1:
-					elem.add(new Bomber(app, elementos[1]));
+					int num2 = (int) app.random(2);
+					switch (num2) {
+					case 0:
+						elem.add(new R2D2(app, elementos[2]));
+						break;
+					case 1:
+						elem.add(new Strom(app, elementos[3]));
+						break;
+					}
 					break;
 				}
+
 			}
 		}
 	}

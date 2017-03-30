@@ -8,20 +8,20 @@ public abstract class Elemento {
 
 	protected PApplet app;
 	protected PVector pos, dir, vel, a;
-	protected float x, topVel;
+	protected float x, topVel, heal;
 	protected PImage elem;
 
 	public Elemento(PApplet app, PImage elem) {
 		this.app = app;
 		this.elem = elem;
 
-		x = app.random(40, app.height - 40);
+		x = app.random(60, app.height - 60);
 
 		pos = new PVector(x, -80);
 		vel = new PVector(0, 0);
 		dir = new PVector(x, app.height + 100);
 
-		topVel = 4;
+		topVel = 3;
 	}
 
 	public abstract void pintar();
@@ -36,7 +36,7 @@ public abstract class Elemento {
 	}
 
 	public boolean colision(PVector pos2) {
-		if (PVector.dist(pos, pos2) <= 10) {
+		if (PVector.dist(pos, pos2) <= 25) {
 			return true;
 		}
 		return false;
@@ -44,6 +44,14 @@ public abstract class Elemento {
 
 	public float getPosY() {
 		return pos.y;
+	}
+
+	public float getHeal() {
+		return heal;
+	}
+
+	public void restarHeal(float damage) {
+		heal -= damage;
 	}
 
 }

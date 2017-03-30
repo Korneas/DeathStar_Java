@@ -9,18 +9,20 @@ public class Bullet {
 	private PVector pos, dir, vel, a;
 	private float x, y, topVel;
 	private int[] col;
+	private int damage;
 
-	public Bullet(PApplet app, float x, float y, int[] col) {
+	public Bullet(PApplet app, float x, float y, int[] col, int damage) {
 		this.app = app;
 		this.x = x;
 		this.y = y;
 		this.col = col;
+		this.damage = damage;
 
-		topVel = 15;
+		topVel = 20;
 
 		pos = new PVector(x, y);
 		vel = new PVector(0, 0);
-		dir = new PVector(x, -50);
+		dir = new PVector(x, -200);
 	}
 
 	public void pintar() {
@@ -40,7 +42,19 @@ public class Bullet {
 		pos.add(vel);
 	}
 
+	public PVector getPos() {
+		return pos;
+	}
+
+	public void setPos(PVector pos) {
+		this.pos = pos;
+	}
+
 	public float getPosY() {
 		return pos.y;
+	}
+
+	public int getDamage() {
+		return damage;
 	}
 }
