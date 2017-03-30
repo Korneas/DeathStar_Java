@@ -1,15 +1,17 @@
-package rebels;
+package serial;
 
 import java.io.Serializable;
 
-public class Message implements Serializable {
-	
+public class MessageSerial implements Serializable {
+
 	public int emisor;
+	public int receptor;
 	public String msg;
-	
-	public Message(int emisor, String msg) {
+
+	public MessageSerial(int emisor, int receptor, String msg) {
 		super();
 		this.emisor = emisor;
+		this.receptor = receptor;
 		this.msg = msg;
 	}
 
@@ -21,6 +23,14 @@ public class Message implements Serializable {
 		this.emisor = emisor;
 	}
 
+	public int getReceptor() {
+		return receptor;
+	}
+
+	public void setReceptor(int receptor) {
+		this.receptor = receptor;
+	}
+
 	public String getMsg() {
 		return msg;
 	}
@@ -28,5 +38,5 @@ public class Message implements Serializable {
 	public void setMsg(String msg) {
 		this.msg = msg;
 	}
-	
+
 }

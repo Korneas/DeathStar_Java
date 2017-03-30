@@ -10,6 +10,7 @@ import processing.core.PFont;
 import processing.core.PImage;
 import processing.core.PVector;
 import serial.Item;
+import serial.MessageSerial;
 import serial.Usuario;
 
 public class Logica implements Observer {
@@ -68,7 +69,7 @@ public class Logica implements Observer {
 
 		if (id == 3) {
 			try {
-				c.enviar(new Message(id, "comenzar"), GROUP_ADDRESS);
+				c.enviar(new MessageSerial(id, 0, "comenzar"), GROUP_ADDRESS);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -493,11 +494,21 @@ public class Logica implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if (arg instanceof Message) {
-			Message mensaje = (Message) arg;
+
+		if (arg instanceof MessageSerial) {
+			MessageSerial mensaje = (MessageSerial) arg;
 			if (mensaje.getEmisor() == 3) {
 				if (mensaje.getMsg().contains("comenzar")) {
 					start = true;
+				}
+			}
+
+			if (mensaje.getEmisor() == 10) {
+				if (mensaje.getReceptor() == 1) {
+					if (mensaje.getMsg().contains("Envio datos")) {
+						String android = c.getAndroidAddress();
+						System.out.println("Mensaje de " + android);
+					}
 				}
 			}
 		}
