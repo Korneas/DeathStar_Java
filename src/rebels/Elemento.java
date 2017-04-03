@@ -15,7 +15,7 @@ public abstract class Elemento {
 		this.app = app;
 		this.elem = elem;
 
-		x = app.random(60, app.height - 60);
+		x = app.random(60, app.width - 60);
 
 		pos = new PVector(x, -80);
 		vel = new PVector(0, 0);

@@ -55,7 +55,7 @@ public class Sound {
 	
 	public void triggerSample(int num){
 		samples[num].trigger();
-		System.out.println("Trigger "+num);
+		//System.out.println("Trigger "+num);
 	}
 
 	public void setCancion(int num) {

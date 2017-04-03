@@ -32,7 +32,7 @@ public class Logica implements Observer {
 
 	private int pantalla;
 	private int score;
-	private boolean start, apodoEscrito, race;
+	private boolean start, startAndroid, apodoEscrito, race;
 	private PFont fuenteBold, fuenteLight;
 	private String apodo;
 	private int animacionMensaje;
@@ -117,8 +117,6 @@ public class Logica implements Observer {
 
 		apodo = "";
 
-		start = true;
-
 		sigX = app.width / 2;
 		vel = 5;
 		pos = new PVector(sigX, 600);
@@ -138,6 +136,8 @@ public class Logica implements Observer {
 		colors[2][0] = 0;
 		colors[2][1] = 255;
 		colors[2][2] = 0;
+
+		start = true;
 
 	}
 
@@ -168,8 +168,13 @@ public class Logica implements Observer {
 		// Nebulosa
 		app.image(fondo[3], app.width / 2, posFondo[0]);
 		app.image(fondo[3], app.width / 2, posFondo[3]);
-		posFondo[0] += .5;
-		posFondo[3] += .5;
+		if (pantalla == 2) {
+			posFondo[0] += nav.getUniVel() / 2;
+			posFondo[3] += nav.getUniVel() / 2;
+		} else {
+			posFondo[0] += .5;
+			posFondo[3] += .5;
+		}
 		if (posFondo[0] >= 1950) {
 			posFondo[0] = -3050;
 		}
@@ -180,8 +185,13 @@ public class Logica implements Observer {
 		// Estrellas pequeñas
 		app.image(fondo[4], app.width / 2, posFondo[1]);
 		app.image(fondo[4], app.width / 2, posFondo[4]);
-		posFondo[1] += 1;
-		posFondo[4] += 1;
+		if (pantalla == 2) {
+			posFondo[1] += nav.getUniVel();
+			posFondo[4] += nav.getUniVel();
+		} else {
+			posFondo[1] += 1;
+			posFondo[4] += 1;
+		}
 		if (posFondo[1] >= 1950) {
 			posFondo[1] = -3050;
 		}
@@ -192,25 +202,45 @@ public class Logica implements Observer {
 		// Estrellas grandes
 		app.image(fondo[5], app.width / 2, posFondo[2]);
 		app.image(fondo[5], app.width / 2, posFondo[5]);
-		posFondo[2] += 2;
-		posFondo[5] += 2;
+		if (pantalla == 2) {
+			posFondo[2] += (nav.getUniVel() * 2);
+			posFondo[5] += (nav.getUniVel() * 2);
+		} else {
+			posFondo[2] += 2;
+			posFondo[5] += 2;
+		}
+
 		if (posFondo[2] >= 1950) {
 			posFondo[2] = -3050;
 		}
 		if (posFondo[5] >= 1950) {
 			posFondo[5] = -3050;
 		}
+
+		if (pantalla == 2) {
+			if (app.frameCount % 360 == 0) {
+				if (nav.getUniVel() == 1) {
+					nav.aumentarVel((float) 1);
+				} else {
+					nav.aumentarVel((float) 2);
+				}
+				System.out.println(nav.getUniVel());
+			}
+		}
 	}
 
 	public void inicio() {
 		app.image(fondo[0], app.width / 2, 100);
 		app.textAlign(PApplet.CENTER);
-		if (!start) {
+		if (!startAndroid) {
 			app.textFont(fuenteLight);
 			app.textSize(20);
 			app.fill(255);
-			app.text("Esperando a los\ndemás jugadores", app.width / 2, 400);
-		} else {
+			app.text("Esperando al administrador\nen Android", app.width / 2, 450);
+		}
+		if (!start) {
+			app.text("Esperando a los\ndemás jugadores", app.width / 2, 350);
+		} else if (start && startAndroid) {
 			if (!apodoEscrito) {
 				app.textFont(fuenteBold);
 				app.textSize(36);
@@ -298,52 +328,39 @@ public class Logica implements Observer {
 		}
 
 		for (int i = 0; i < elem.size(); i++) {
-			elem.get(i).pintar();
-			elem.get(i).mover();
+			if (elem.size() > 0) {
+				elem.get(i).pintar();
+				elem.get(i).mover();
 
-			if (elem.get(i).getPosY() > app.height + 100) {
-				elem.remove(i);
-			}
-
-			if (!(elem.get(i) instanceof R2D2) && !(elem.get(i) instanceof Strom)) {
-				if (elem.get(i).getHeal() <= 0) {
-					if (elem.get(i) instanceof Tie) {
-						score += 50;
-					} else if (elem.get(i) instanceof Bomber) {
-						score += 150;
-					}
-					elem.remove(i);
-				}
-			}
-
-			for (int j = 0; j < gun.size(); j++) {
-				if (elem.size() > 0) {
+				for (int j = 0; j < gun.size() - 1; j++) {
 					if (elem.get(i).colision(gun.get(j).getPos())) {
 						elem.get(i).restarHeal(gun.get(j).getDamage());
 						gun.remove(j);
 					}
 				}
+
+				if (!(elem.get(i) instanceof R2D2) && !(elem.get(i) instanceof Strom)) {
+					if (elem.get(i).getHeal() <= 0) {
+						if (elem.get(i) instanceof Tie) {
+							score += 50;
+						} else if (elem.get(i) instanceof Bomber) {
+							score += 150;
+						}
+						elem.remove(i);
+					}
+				} else if (elem.get(i).getPosY() > app.height + 100) {
+					elem.remove(i);
+				}
 			}
+		}
+
+		if (app.frameCount % 240 == 0) {
+			ast.add(new Asteroide(app, asteroides[(int) app.random(4)]));
 		}
 
 		for (int i = 0; i < ast.size(); i++) {
 			ast.get(i).pintar();
 			ast.get(i).mover();
-
-			if (ast.get(i).getPosY() >= 400 && ast.get(i).getPosY() <= 402) {
-				ast.add(new Asteroide(app, asteroides[(int) app.random(4)]));
-			}
-
-			if (ast.get(i).getPosY() > app.height + 100) {
-				ast.remove(i);
-			}
-
-			if (ast.get(i).getHeal() <= 0) {
-				ast.remove(i);
-				if (ast.size() <= 1) {
-					ast.add(new Asteroide(app, asteroides[(int) app.random(4)]));
-				}
-			}
 
 			for (int j = 0; j < gun.size(); j++) {
 				if (ast.size() > 0) {
@@ -353,6 +370,14 @@ public class Logica implements Observer {
 						gun.remove(j);
 					}
 				}
+			}
+			
+			if (ast.get(i).getPosY() > app.height + 100) {
+				ast.remove(i);
+			}
+
+			if (ast.get(i).getHeal() <= 0) {
+				ast.remove(i);
 			}
 
 		}
@@ -504,11 +529,11 @@ public class Logica implements Observer {
 			}
 
 			if (mensaje.getEmisor() == 10) {
-				if (mensaje.getReceptor() == 1) {
-					if (mensaje.getMsg().contains("Envio datos")) {
-						String android = c.getAndroidAddress();
-						System.out.println("Mensaje de " + android);
-					}
+				if (mensaje.getMsg().contains("online")) {
+					String android = c.getAndroidAddress();
+					System.out.println("Mensaje de " + android);
+					ANDROID_ADDRESS = c.getAndroidAddress();
+					startAndroid = true;
 				}
 			}
 		}
@@ -517,27 +542,17 @@ public class Logica implements Observer {
 			Item item = (Item) arg;
 			if (item.getReceptor() == id) {
 				switch (item.getTipo()) {
-				case 0:
-					int num = (int) app.random(2);
-					switch (num) {
-					case 0:
-						elem.add(new Tie(app, elementos[0]));
-						break;
-					case 1:
-						elem.add(new Bomber(app, elementos[1]));
-						break;
-					}
-					break;
 				case 1:
-					int num2 = (int) app.random(2);
-					switch (num2) {
-					case 0:
-						elem.add(new R2D2(app, elementos[2]));
-						break;
-					case 1:
-						elem.add(new Strom(app, elementos[3]));
-						break;
-					}
+					elem.add(new R2D2(app, elementos[2]));
+					break;
+				case 2:
+					elem.add(new Tie(app, elementos[0]));
+					break;
+				case 3:
+					elem.add(new Bomber(app, elementos[1]));
+					break;
+				case 4:
+					elem.add(new Strom(app, elementos[3]));
 					break;
 				}
 

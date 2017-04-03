@@ -11,6 +11,7 @@ public class Nave {
 	private int num;
 	private float x, y, topVel;
 	private PImage nav;
+	private float uniVel;
 
 	public Nave(PApplet app, PImage nav, int num) {
 		super();
@@ -22,6 +23,7 @@ public class Nave {
 		y = 300;
 
 		topVel = 4;
+		uniVel = 1;
 
 		pos = new PVector(x, y);
 		vel = new PVector(0, 0);
@@ -55,12 +57,12 @@ public class Nave {
 		this.pos.x = x;
 		this.pos.y = y;
 	}
-	
-	public float getPosX(){
+
+	public float getPosX() {
 		return pos.x;
 	}
-	
-	public float getPosY(){
+
+	public float getPosY() {
 		return pos.y;
 	}
 
@@ -71,5 +73,13 @@ public class Nave {
 	public void setNum(int num) {
 		this.num = num;
 	}
-	
+
+	public float getUniVel() {
+		return uniVel;
+	}
+
+	public void aumentarVel(float suma) {
+		uniVel += suma;
+	}
+
 }
