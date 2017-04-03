@@ -3,21 +3,28 @@ package serial;
 import java.io.Serializable;
 
 public class Resultados implements Serializable {
+	public int emisor;
 	public int puntuacion;
-	public int recogibles;
-	public int tiempo;
+	public int distance;
 	public int obstaculos;
 	public int disparos;
 	public int velMax;
 
-	public Resultados(int puntuacion, int recogibles, int tiempo, int obstaculos, int disparos, int velMax) {
+	public Resultados(int emisor, int puntuacion, int distance, int obstaculos, int velMax) {
 		super();
+		this.emisor = emisor;
 		this.puntuacion = puntuacion;
-		this.recogibles = recogibles;
-		this.tiempo = tiempo;
+		this.distance = distance;
 		this.obstaculos = obstaculos;
-		this.disparos = disparos;
 		this.velMax = velMax;
+	}
+
+	public int getEmisor() {
+		return emisor;
+	}
+
+	public void setEmisor(int emisor) {
+		this.emisor = emisor;
 	}
 
 	public int getPuntuacion() {
@@ -28,20 +35,12 @@ public class Resultados implements Serializable {
 		this.puntuacion = puntuacion;
 	}
 
-	public int getRecogibles() {
-		return recogibles;
+	public int getDistance() {
+		return distance;
 	}
 
-	public void setRecogibles(int recogibles) {
-		this.recogibles = recogibles;
-	}
-
-	public int getTiempo() {
-		return tiempo;
-	}
-
-	public void setTiempo(int tiempo) {
-		this.tiempo = tiempo;
+	public void setDistance(int distance) {
+		this.distance = distance;
 	}
 
 	public int getObstaculos() {
@@ -67,4 +66,5 @@ public class Resultados implements Serializable {
 	public void setVelMax(int velMax) {
 		this.velMax = velMax;
 	}
+
 }

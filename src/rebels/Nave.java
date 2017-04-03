@@ -7,7 +7,7 @@ import processing.core.PVector;
 public class Nave {
 
 	private PApplet app;
-	private PVector pos, vel, a;
+	private PVector pos,posFin, vel, vel2, a,aFin;
 	private int num;
 	private float x, y, topVel;
 	private PImage nav;
@@ -27,6 +27,7 @@ public class Nave {
 
 		pos = new PVector(x, y);
 		vel = new PVector(0, 0);
+		vel2 = new PVector(0, 0);
 	}
 
 	public void pintar() {
@@ -46,7 +47,19 @@ public class Nave {
 		if (PVector.dist(pos, pos2) <= 3) {
 			vel.setMag(0);
 		}
+		
+		posFin = new PVector(pos.x, -200);
 
+	}
+
+	public void forward() {
+		
+		aFin = PVector.sub(posFin, pos);
+		aFin.setMag((float) 0.8);
+
+		vel2.add(aFin);
+		vel2.limit(topVel*3);
+		pos.add(vel2);
 	}
 
 	public void validar(float x2, float y2) {

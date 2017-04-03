@@ -34,7 +34,7 @@ public class Sound {
 		cancion = musica[0];
 
 		cancion.setBalance(0);
-//		cancion.setGain(-40);
+		cancion.setGain(-40);
 	}
 
 	public void reproducir() {
